@@ -1,0 +1,17 @@
+{
+  "name": "check_specs_status",
+  "description": "ADD 范式守卫工具：交叉校验 Specs 三元组（spec.md + tasks.md + checklist.md）的存在性和完整性。\n必须在 Step 2（创建 Specs）和 Step 3（实现前）调用。\n\n返回状态:\n- 'complete' — 三元组完整（三个文件均存在）\n- 'incomplete' — 三元组不完整（缺少某些文件）\n- 'never_generated' — 从未生成",
+  "arguments": {
+    "type": "object",
+    "properties": {
+      "planKeyword": {
+        "type": "string",
+        "description": "Plan 文件的关键词，用于在 .qoder/specs/ 目录下匹配对应的 specs 目录"
+      }
+    },
+    "required": [
+      "planKeyword"
+    ],
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

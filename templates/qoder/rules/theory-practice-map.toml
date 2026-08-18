@@ -1,0 +1,126 @@
+# ADD 理论→实践映射（前端适配版）
+# 用途：脚本化验证每条理论规则是否有对应的实践落地位置
+# 格式：`location` 使用 "skill:step" 约定，多个位置表示该规则在多处落地
+
+[ADD-0]
+name = "范式边界与消费者定义"
+practice = ["project_rules.md"]
+trigger = "始终"
+
+[ADD-0.1]
+name = "广义文档先行"
+practice = [
+  "add-paradigm:Step 0",
+  "add-paradigm:Step 8 第二阶段"
+]
+trigger = ["变更开始", "收敛后"]
+
+[ADD-0.2]
+name = "Plan & Specs 自动创建"
+practice = ["add-paradigm:入口"]
+trigger = "任何代码修改任务"
+
+[ADD-0.3]
+name = "自动审计机制（Axios 拦截器）"
+practice = ["project_rules.md:ADD-0.3"]
+trigger = "API 调用时"
+
+[ADD-1]
+name = "可观测性优先于功能实现"
+practice = ["add-paradigm:Step 2"]
+trigger = "编码前"
+
+[ADD-2]
+name = "组件生命周期对称"
+practice = [
+  "add-paradigm:Step 3",
+  "mcp:check_phase_symmetry"
+]
+trigger = ["编码中", "合规检查"]
+
+[ADD-3]
+name = "最小可观测单元"
+practice = ["add-paradigm:Step 3"]
+trigger = "编码中"
+
+[ADD-4]
+name = "三通道输出"
+practice = ["add-paradigm:Step 2"]
+trigger = "编码前"
+
+[ADD-5]
+name = "类型即文档"
+practice = [
+  "add-paradigm:Step 1",
+  "add-paradigm:Step 3"
+]
+trigger = ["编码前", "编码中"]
+
+[ADD-6]
+name = "失败路径等价审计"
+practice = [
+  "add-paradigm:Step 3",
+  "mcp:check_failure_path"
+]
+trigger = ["编码中", "合规检查"]
+
+[ADD-7]
+name = "开发操作审计"
+practice = [
+  "add-paradigm:全程",
+  "session-init:Step 2"
+]
+trigger = ["文件改动", "会话启动"]
+
+[ADD-8]
+name = "目录路径与文件命名约定"
+practice = ["add-paradigm:附录A"]
+trigger = "文件创建时"
+
+[ADD-9]
+name = "方向错误的成本非线性"
+practice = ["add-paradigm:Step 0"]
+trigger = "Plan 完成后"
+
+[ADD-10]
+name = "意图与实现的语义鸿沟"
+practice = ["add-paradigm:Step 3.5"]
+trigger = "checklist [T] 全部通过后"
+
+[ADD-11]
+name = "证据的不可再生性"
+practice = [
+  "session-init:Step 1",
+  "review-runtime.md"
+]
+trigger = ["运行时异常", "会话启动"]
+
+[ADD-12]
+name = "双源头漂移的必然性"
+practice = ["add-paradigm:Step 8"]
+trigger = "收敛判断通过后"
+
+[ADD-13]
+name = "DPS 上游文档质量闸门"
+practice = ["add-paradigm:Step 0 末端", "mcp:check_dps"]
+trigger = "Step 0 产出检查"
+
+[ADD-14]
+name = "RAHS 下游执行健康度闸门"
+practice = ["add-paradigm:Step 4 末端", "add-paradigm:Step 8 收敛", "mcp:check_rahs"]
+trigger = ["Step 4 合规检查", "Step 8 收敛判定"]
+
+[ADD-15]
+name = "add-route 闭环自检"
+practice = ["add-paradigm:Step 3.6", "mcp:check_add_route_completeness"]
+trigger = "Step 3 代码完成后自检"
+
+[ADD-17]
+name = "HITL 磋商临时文件机制"
+practice = ["add-paradigm:独立能力：生成 Plan", "add-paradigm:Step 0"]
+trigger = "Plan/Review HITL 磋商时"
+
+[ADD-18]
+name = "HITL 人机审核强制规则"
+practice = ["add-paradigm:独立能力：生成 Plan", "add-paradigm:Step 0", "hooks:pre-tool-use §C", "mcp:create_hitl", "mcp:update_hitl", "mcp:status_hitl"]
+trigger = "Plan/Review 生成时"

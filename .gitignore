@@ -1,0 +1,14 @@
+# 依赖
+node_modules/
+
+# 构建产物
+*.tgz
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+
+# 日志
+*.log

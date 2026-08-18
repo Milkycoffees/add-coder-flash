@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "farm-qoder-dev-tools": {
+      "command": "{{projectRoot}}/node_modules/.bin/tsx",
+      "args": [
+        "{{projectRoot}}/.qoder/scripts/mcp-server.ts"
+      ],
+      "cwd": "{{projectRoot}}",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

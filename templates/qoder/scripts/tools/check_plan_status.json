@@ -1,0 +1,17 @@
+{
+  "name": "check_plan_status",
+  "description": "ADD 范式守卫工具：交叉校验 Plan 文档的存在性和内容完整性。\n必须在 Step 0（文档先行）中调用。\n\n返回状态:\n- 'normal' — Plan 文件存在且章节完整\n- 'incomplete' — Plan 文件存在但章节不完整\n- 'file_missing' — Plan 文件不存在\n- 'never_generated' — 从未生成",
+  "arguments": {
+    "type": "object",
+    "properties": {
+      "planKeyword": {
+        "type": "string",
+        "description": "Plan 文件的关键词，用于在 .qoder/plans/ 目录下匹配 *plan* 文件"
+      }
+    },
+    "required": [
+      "planKeyword"
+    ],
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

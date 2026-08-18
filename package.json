@@ -1,0 +1,33 @@
+{
+  "name": "add-coder-flash",
+  "version": "1.0.0",
+  "description": "一条命令把 hooks/templates/rules/skills 等资产铺到目标项目",
+  "main": "index.js",
+  "bin": {
+    "add-coder-flash": "bin/add-coder-flash.js"
+  },
+  "files": [
+    "bin",
+    "templates",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node bin/add-coder-flash.js init"
+  },
+  "keywords": [
+    "add",
+    "qoder",
+    "hooks",
+    "workflow"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "tsx": "^4.22.4"
+  }
+}
