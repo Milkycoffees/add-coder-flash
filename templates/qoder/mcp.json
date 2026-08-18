@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "farm-qoder-dev-tools": {
+    "{{mcpServerName}}": {
       "command": "{{projectRoot}}/node_modules/.bin/tsx",
       "args": [
         "{{projectRoot}}/.qoder/scripts/mcp-server.ts"

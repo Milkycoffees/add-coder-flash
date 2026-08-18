@@ -49,7 +49,8 @@ npx add-coder-flash init --dir <path>  # 指定目标目录
 
 - Node.js >= 20（hooks 为零依赖 .mjs，直接 `node` 运行）
 - `tsx` 与 `@modelcontextprotocol/sdk` 已作为本包 dependencies 随安装自动带上，MCP server 开箱即用
-- 在 IDE 全局 MCP 配置中注册 `farm-qoder-dev-tools`（项目 `.qoder/mcp.json` 已生成，路径已渲染）
+- 在 IDE 全局 MCP 配置中注册 MCP server（名称自动按项目生成：`<项目名>-qoder-dev-tools`，项目名取自 package.json name 或目录名，**上限 15 个字符，超出时按完整英文单词 / 中文拼音边界截取**（不在词中间切断；连续无分隔拼音保留完整）；见安装输出的 `🔌 MCP server` 提示；项目 `.qoder/mcp.json` 已生成，路径已渲染）
+- 如需自定义名称，手动执行时可用 `npx add-coder-flash init --mcp-name <名称>` 重新生成（--force）
 - 重启 Qoder 使 hooks 配置生效
 
 ## 包内容

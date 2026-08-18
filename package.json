@@ -1,6 +1,6 @@
 {
   "name": "add-coder-flash",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "一条命令把 hooks/templates/rules/skills 等资产铺到目标项目",
   "main": "index.js",
   "bin": {

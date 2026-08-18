@@ -28,6 +28,7 @@ function parseArgs(argv) {
     const a = argv[i]
     if (a === "--force" || a === "-f") opts.force = true
     else if (a === "--dir" || a === "-d") opts.dir = path.resolve(argv[++i] ?? "")
+    else if (a === "--mcp-name") opts.mcpName = argv[++i] ?? ""
     else if (a === "--help" || a === "-h") opts.help = true
     else if (!opts.command) opts.command = a
   }
@@ -43,6 +44,7 @@ function printHelp() {
 选项:
   --force, -f     覆盖目标 .qoder 中已存在的文件（默认跳过）
   --dir, -d       目标项目目录（默认当前目录）
+  --mcp-name      MCP server 名称（默认取项目 package.json name 或目录名 + -qoder-dev-tools）
   --help, -h      显示帮助
 
 示例:
@@ -51,9 +53,52 @@ function printHelp() {
   add-coder-flash init --force`)
 }
 
-/** 渲染 {{projectRoot}} 占位符 */
-function renderProjectRoot(content, projectRoot) {
-  return content.replaceAll("{{projectRoot}}", projectRoot.replace(/\\/g, "/"))
+/** 渲染占位符：{{projectRoot}} / {{mcpServerName}} */
+function renderPlaceholders(content, projectRoot, mcpServerName) {
+  return content
+    .replaceAll("{{projectRoot}}", projectRoot.replace(/\\/g, "/"))
+    .replaceAll("{{mcpServerName}}", mcpServerName)
+}
+
+/** 净化名称：去 @scope/ 前缀，非 [a-zA-Z0-9_-] 替换为 -，转小写 */
+function sanitizeName(name) {
+  return String(name)
+    .replace(/^@[^/]+\//, "")
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase()
+}
+
+/** 推导 MCP server 名：--mcp-name > 项目 package.json name > 目录名，后缀 -qoder-dev-tools；
+ *  名称上限 15 个字符（MCP_NAMING_MAX_LEN），超出时按完整单词/拼音边界截取 */
+const MCP_NAMING_MAX_LEN = 15
+
+/** 按 - 分段累积截取：保证每段为完整英文单词或中文拼音，不在词中间切断；
+ *  单段超长（连续拼音无分隔）时保留完整段，宁长勿碎 */
+function truncateToWordBoundary(name, maxLen) {
+  if (name.length <= maxLen) return name
+  const parts = name.split("-")
+  let out = ""
+  for (const part of parts) {
+    const candidate = out ? `${out}-${part}` : part
+    if (candidate.length > maxLen) break
+    out = candidate
+  }
+  return out || parts[0]
+}
+
+function resolveMcpServerName(projectRoot, explicit) {
+  let base = ""
+  if (explicit) base = explicit
+  else {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(projectRoot, "package.json"), "utf-8"))
+      base = pkg.name ?? ""
+    } catch { /* 无 package.json，退回目录名 */ }
+  }
+  if (!base) base = path.basename(projectRoot)
+  const clean = truncateToWordBoundary(sanitizeName(base), MCP_NAMING_MAX_LEN)
+  return clean ? `${clean}-qoder-dev-tools` : "add-qoder-dev-tools"
 }
 
 /** 复制前统计：目标中已存在 = skipped（非 force）或 overwritten（force），否则 created */
@@ -98,6 +143,7 @@ function main() {
   const projectRoot = opts.dir
   const targetDir = path.join(projectRoot, ".qoder")
   const projectRootPosix = projectRoot.replace(/\\/g, "/")
+  const mcpServerName = resolveMcpServerName(projectRoot, opts.mcpName)
 
   // 保护：postinstall 自触发场景下，目标目录为包自身（开发/自安装）时跳过，避免污染
   if (path.resolve(projectRoot) === path.resolve(__dirname, "..")) {
@@ -134,16 +180,17 @@ function main() {
   const mcpTemplate = path.join(TEMPLATE_DIR, MCP_TEMPLATE)
   const mcpTarget = path.join(targetDir, MCP_TEMPLATE)
   if (fs.existsSync(mcpTemplate)) {
-    const rendered = renderProjectRoot(fs.readFileSync(mcpTemplate, "utf-8"), projectRootPosix)
+    const rendered = renderPlaceholders(fs.readFileSync(mcpTemplate, "utf-8"), projectRootPosix, mcpServerName)
     if (opts.force || !fs.existsSync(mcpTarget)) {
       fs.writeFileSync(mcpTarget, rendered, "utf-8")
-      console.log(`   ${opts.force ? "覆盖" : "新建"} ${MCP_TEMPLATE}（已渲染 projectRoot）`)
+      console.log(`   ${opts.force ? "覆盖" : "新建"} ${MCP_TEMPLATE}（已渲染 projectRoot / mcpServerName=${mcpServerName}）`)
     } else {
       console.log(`   跳过 ${MCP_TEMPLATE}（已存在，--force 可覆盖）`)
     }
   }
 
   console.log(`\n✅ 完成: 新建 ${stats.created} | 跳过 ${stats.skipped} | 覆盖 ${stats.overwritten}`)
+  console.log(`🔌 MCP server: ${mcpServerName}（已在 mcp.json 生成，IDE 全局 MCP 配置请注册同名 server）`)
   console.log(`💡 提示:`)
   console.log(`   · 重启 Qoder 使 hooks/settings 配置生效`)
   console.log(`   · tsx / @modelcontextprotocol/sdk 已随本包自动安装，MCP server 可直接使用`)
