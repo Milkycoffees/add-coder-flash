@@ -5,7 +5,11 @@
  * 新版 .mjs hooks 通过 `node --import tsx scripts/plan-status-bridge.ts` 查询活跃 Plan 状态，
  * 标准实现依赖 prisma/DB（全量 add-coder 形态）。new 项目为轻量级 add（无数据库），
  * 本桥以文件系统判定活跃 Plan（移植自旧版 .sh hooks 的 detect_active_add 逻辑）：
- *   1. plans/index.md 索引优先 → 2. glob *-handoff*.md（7 天内）→ 3. add-route [ ] 未勾选 = 活跃
+ *   1. plans/index.md 索引优先 → 2. glob *-handoff*.md（7 天内）→ 3. add-route 存在即报告（含进度）
+ *
+ * 收敛语义（2026-08-22 修订）：add-route 全部 [x] 时不再置 isActive=false——
+ * 否则 stop-check 的 Q4 验收分支不可达（bridge 判非活跃 → detectActiveAdd 返回 null → Q2 误报"无活跃 Plan"），
+ * 已收敛 Plan 的验收闭环由 stop-check Q4 完成（checkAddCompleteness 通过后 clearDevAction 清理 dev 标记）。
  *
  * 输出契约（与 hooks 内 detectActiveAdd 解析一致）:
  *   {"availability":"READY","isActive":true,"planName":"...","progress":{"doneTasks":n,"totalTasks":n},"approvalStatus":"none"}
@@ -87,7 +91,8 @@ function main(): void {
     if (found) { addRoute = join(dir, found); break }
   }
 
-  // 活跃判定 + 步骤进度：add-route 中 [x]/[ ] 计数；无 add-route → Plan 初始态，视为活跃
+  // 进度统计：add-route 中 [x]/[ ] 计数；无 add-route → Plan 初始态
+  // 2026-08-22 修订：全 [x] 不再置 isActive=false（收敛 Plan 由 stop-check Q4 验收闭环，见文件头注释）
   let doneTasks = 0
   let totalTasks = 0
   let isActive = true
@@ -96,10 +101,7 @@ function main(): void {
     doneTasks = countMatches(content, /\[x\]/g)
     const unchecked = countMatches(content, /\[ \]/g)
     totalTasks = doneTasks + unchecked
-    if (totalTasks > 0 && unchecked === 0) {
-      // 全部 [x] → 已收敛，但 handoff 仍存在（遗留），标记非活跃
-      isActive = false
-    }
+    // 全部 [x] → 已收敛：保持 isActive=true（供 stop-check Q4 验收，Q4 通过后 clearDevAction 清理）
   }
 
   process.stdout.write(

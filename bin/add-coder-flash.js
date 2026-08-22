@@ -11,7 +11,8 @@
  * 行为:
  *   1. 把包内 templates/qoder/ 全部资产复制到目标 <dir>/.qoder/
  *   2. mcp.json 中的 {{projectRoot}} 占位符渲染为目标项目绝对路径
- *   3. 默认不覆盖已有文件（--force 覆盖），业务目录（plans/specs/reviews/hitl）不在包内、不受影响
+ *   3. 同步生成 <dir>/.qoder-cn/mcp.json（QoderCN IDE 项目级 MCP 配置源，2026-08-22 新增）
+ *   4. 默认不覆盖已有文件（--force 覆盖），业务目录（plans/specs/reviews/hitl）不在包内、不受影响
  */
 "use strict"
 
@@ -20,6 +21,8 @@ const path = require("path")
 
 const TEMPLATE_DIR = path.join(__dirname, "..", "templates", "qoder")
 const MCP_TEMPLATE = "mcp.json"
+// QoderCN IDE 项目级 MCP 配置源（IDE 自动创建并监听，写入即加载；.qoder/mcp.json 仅为 ADD 体系模板，IDE 不直接读取）
+const QODER_CN_DIR = ".qoder-cn"
 
 function parseArgs(argv) {
   // 目标目录优先级：--dir 参数 > INIT_CWD（npm/pnpm 生命周期注入的安装起始目录）> 当前目录
@@ -187,14 +190,26 @@ function main() {
     } else {
       console.log(`   跳过 ${MCP_TEMPLATE}（已存在，--force 可覆盖）`)
     }
+
+    // QoderCN 项目级 MCP 配置源同步写入（2026-08-22 新增：QoderCN IDE 只读取项目内 .qoder-cn/mcp.json，
+    // 不读取 .qoder/mcp.json；不生成则 MCP 不生效，用户需手动复制）
+    const qoderCnTarget = path.join(projectRoot, QODER_CN_DIR, MCP_TEMPLATE)
+    if (opts.force || !fs.existsSync(qoderCnTarget)) {
+      fs.mkdirSync(path.dirname(qoderCnTarget), { recursive: true })
+      fs.writeFileSync(qoderCnTarget, rendered, "utf-8")
+      console.log(`   ${opts.force ? "覆盖" : "新建"} ${QODER_CN_DIR}/${MCP_TEMPLATE}（QoderCN 项目级 MCP 配置源，已渲染）`)
+    } else {
+      console.log(`   跳过 ${QODER_CN_DIR}/${MCP_TEMPLATE}（已存在，--force 可覆盖）`)
+    }
   }
 
   console.log(`\n✅ 完成: 新建 ${stats.created} | 跳过 ${stats.skipped} | 覆盖 ${stats.overwritten}`)
-  console.log(`🔌 MCP server: ${mcpServerName}（已在 mcp.json 生成，IDE 全局 MCP 配置请注册同名 server）`)
+  console.log(`🔌 MCP server: ${mcpServerName}（已生成 .qoder/mcp.json + .qoder-cn/mcp.json，QoderCN 重启后自动加载，无需手动注册）`)
   console.log(`💡 提示:`)
   console.log(`   · 重启 Qoder 使 hooks/settings 配置生效`)
   console.log(`   · tsx / @modelcontextprotocol/sdk 已随本包自动安装，MCP server 可直接使用`)
   console.log(`   · 目标项目已有 plans/specs/reviews/hitl 业务目录不受影响`)
+  console.log(`   · 非 QoderCN IDE 请忽略 .qoder-cn/（项目级配置源仅 QoderCN 使用）`)
 }
 
 main()
