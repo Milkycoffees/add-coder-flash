@@ -1,0 +1,125 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/session-start.mjs"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/prompt-submit.mjs"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "create_file|CreateFile|Write|search_replace|SearchReplace|Edit|edit_file|EditFile|delete_file|DeleteFile|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/pre-tool-use.mjs"
+          },
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/doc-format-guard.mjs"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "create_file|CreateFile|Write|search_replace|SearchReplace|Edit|edit_file|EditFile|delete_file|DeleteFile",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/post-tool-use.mjs"
+          },
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/doc-format-guard.mjs"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/post-tool-failure.mjs"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/stop-check.mjs"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/subagent-guard.mjs"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/subagent-guard.mjs"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/pre-compact.mjs"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "result",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/notification.mjs"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .kimi-code/hooks/permission-gate.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}

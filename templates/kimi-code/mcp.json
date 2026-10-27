@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "{{mcpServerName}}": {
+      "command": "{{projectRoot}}/node_modules/.bin/tsx",
+      "args": [
+        "{{projectRoot}}/.kimi-code/scripts/mcp-server.ts"
+      ],
+      "cwd": "{{projectRoot}}",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

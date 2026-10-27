@@ -1,0 +1,85 @@
+# Kimi Code hooks — ADD 工作流
+#
+# Kimi Code 的项目级 hooks 不读取项目内 settings.json，规则必须写入用户级
+# ~/.kimi-code/config.toml（或 $KIMI_CODE_HOME/config.toml）。
+# 用法：把下面的 [[hooks]] 段追加到 ~/.kimi-code/config.toml，重启会话生效。
+# 命令工作目录 = 当前会话的项目根目录，因此使用相对路径 .kimi-code/。
+#
+# 事件与拦截语义（Kimi Code）：
+#   exit 0 = 放行；exit 2 = 阻断（stderr 为原因）；其他非 0 = fail-open 放行
+#   仅 PreToolUse / Stop / UserPromptSubmit 支持阻断。
+
+[[hooks]]
+event = "SessionStart"
+command = "node .kimi-code/hooks/session-start.mjs"
+timeout = 10
+
+[[hooks]]
+event = "UserPromptSubmit"
+command = "node .kimi-code/hooks/prompt-submit.mjs"
+timeout = 10
+
+[[hooks]]
+event = "PreToolUse"
+matcher = "Bash|[Ww]rite|[Ee]dit|[Ss]earchReplace|[Cc]reateFile|[Dd]eleteFile"
+command = "node .kimi-code/hooks/pre-tool-use.mjs"
+timeout = 10
+
+[[hooks]]
+event = "PreToolUse"
+matcher = "Bash|[Ww]rite|[Ee]dit|[Ss]earchReplace|[Cc]reateFile|[Dd]eleteFile"
+command = "node .kimi-code/hooks/doc-format-guard.mjs"
+timeout = 10
+
+[[hooks]]
+event = "PostToolUse"
+matcher = "[Ww]rite|[Ee]dit|[Ss]earchReplace|[Cc]reateFile|[Dd]eleteFile"
+command = "node .kimi-code/hooks/post-tool-use.mjs"
+timeout = 10
+
+[[hooks]]
+event = "PostToolUse"
+matcher = "[Ww]rite|[Ee]dit|[Ss]earchReplace|[Cc]reateFile|[Dd]eleteFile"
+command = "node .kimi-code/hooks/doc-format-guard.mjs"
+timeout = 10
+
+[[hooks]]
+event = "PostToolUseFailure"
+command = "node .kimi-code/hooks/post-tool-failure.mjs"
+timeout = 10
+
+[[hooks]]
+event = "Stop"
+command = "node .kimi-code/hooks/stop-check.mjs"
+timeout = 10
+
+[[hooks]]
+event = "SubagentStart"
+command = "node .kimi-code/hooks/subagent-guard.mjs"
+timeout = 10
+
+[[hooks]]
+event = "SubagentStop"
+command = "node .kimi-code/hooks/subagent-stop.mjs"
+timeout = 10
+
+[[hooks]]
+event = "PreCompact"
+command = "node .kimi-code/hooks/pre-compact.mjs"
+timeout = 10
+
+[[hooks]]
+event = "Notification"
+matcher = "task\\.(completed|failed)"
+command = "node .kimi-code/hooks/notification.mjs"
+timeout = 10
+
+[[hooks]]
+event = "PermissionRequest"
+command = "node .kimi-code/hooks/permission-gate.mjs"
+timeout = 10
+
+[[hooks]]
+event = "SessionEnd"
+command = "node .kimi-code/hooks/session-end.mjs"
+timeout = 10
